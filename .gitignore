@@ -9,9 +9,10 @@ Thumbs.db
 .fuse_hidden*
 .Directory
 
-# Env / secrets
-.env
-.env.local
 # Stow helper files
 .stow-local-ignore
 install.sh
+
+# Everything else except directories (needed for Stow)
+*
+!*/
