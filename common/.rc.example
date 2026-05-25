@@ -1,9 +1,8 @@
 # =============================================================================
-# .rc.example — alias / 函数 / 提示符模板
+# .rc — alias / 函数 / 提示符（从 .rc.example 复制并自定义）
 # =============================================================================
 
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 
-# Git dotfile 管理别名
-alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+# 其他别名、函数在 ~/.rc 中直接添加
