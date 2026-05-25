@@ -1,0 +1,14 @@
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+.fuse_hidden*
+.Directory
+
+# Env / secrets
+.env
+.env.local
