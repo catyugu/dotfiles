@@ -1,0 +1,20 @@
+[font]
+size = 10.0
+
+[font.normal]
+family = "Maple Mono NF CN"
+
+[window]
+opacity = 1.0
+
+[cursor]
+style = "Block"
+unfocused_hollow = false
+
+[debug]
+render_timer = false
+persistent_logging = false
+
+# Environment
+[env]
+WINIT_X11_SCALE_FACTOR = "1.0"

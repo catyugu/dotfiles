@@ -1,0 +1,29 @@
+# i3status configuration file.
+general {
+        colors = true
+        interval = 5
+        color_good = "#a3be8c"
+        color_degraded = "#ebcb8b"
+        color_bad = "#bf616a"
+}
+
+# 顺序：时间、音量、磁盘
+order += "disk /"
+order += "volume master"
+order += "tztime local"
+
+volume master {
+        format = "%volume"
+        format_muted = "muted"
+        device = "default"
+        mixer = "Master"
+        mixer_idx = 0
+}
+
+disk "/" {
+        format = "%avail"
+}
+
+tztime local {
+        format = "%Y-%m-%d %H:%M"
+}
