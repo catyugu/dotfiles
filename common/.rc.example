@@ -5,9 +5,6 @@
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 
-# Git dotfile 管理别名
-alias config='git --git-dir=$HOME/dotfiles/.git --work-tree=$HOME'
-
 # ---------------------------------------------------------------------
 # 添加更多 alias / 函数 / 提示符到这里
 # ---------------------------------------------------------------------
