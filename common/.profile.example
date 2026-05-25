@@ -1,0 +1,45 @@
+# =============================================================================
+# .profile.example — 环境变量模板（不含私密数据）
+# =============================================================================
+
+export SJTU_API_KEY="YOUR_API_KEY_HERE"
+
+# FNM (Node 版本管理器)
+FNM_PATH="$HOME/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "$(fnm env --shell zsh)"
+fi
+
+# Bun 路径
+export PATH="$HOME/.bun/bin:$PATH"
+
+# Conda (Miniconda3)
+__conda_setup="$('$HOME/miniconda3/bin/conda' 'shell.bash' 'hook' 2>/dev/null)"
+if [ $? -eq 0 ]; then
+  eval "$__conda_setup"
+else
+  if [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
+    . "$HOME/miniconda3/etc/profile.d/conda.sh"
+  else
+    export PATH="$HOME/miniconda3/bin:$PATH"
+  fi
+fi
+unset __conda_setup
+
+# uv
+. "$HOME/.local/bin/env"
+
+# GHCup (Haskell)
+[ -f "$HOME/.ghcup/env" ] && . "$HOME/.ghcup/env"
+
+# WSL specific configurations
+PROXY_IP=$(ip route show | awk '/default/ {print $3}')
+export ALL_PROXY="http://${PROXY_IP}:7890"
+export http_proxy="http://${PROXY_IP}:7890"
+export https_proxy="http://${PROXY_IP}:7890"
+
+# 登录时若在 USERPROFILE 则切换到 ~
+if [ "$PWD" = "$USERPROFILE" ]; then
+  cd ~
+fi
