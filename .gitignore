@@ -12,3 +12,6 @@ Thumbs.db
 # Env / secrets
 .env
 .env.local
+# Stow helper files
+.stow-local-ignore
+install.sh
