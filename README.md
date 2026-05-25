@@ -12,18 +12,18 @@ dotfiles/                        ← Stow 从这里运行
 │   ├── .zprofile                → ~/.zprofile
 │   ├── .profile.example         → ~/.profile.example
 │   ├── .rc.example             → ~/.rc.example
-│   └── nvim/.config/nvim/      → ~/.config/nvim/
+│   └── .config/nvim/            → ~/.config/nvim/
 │
 └── termux/                      ← Termux/i3 桌面环境
-    ├── xresources/.Xresources   → ~/.Xresources
-    ├── xprofile/.xprofile       → ~/.xprofile
-    ├── alacritty/               → ~/.config/alacritty/
-    ├── fcitx5/                  → ~/.config/fcitx5/
-    ├── foot/                    → ~/.config/foot/
-    ├── i3/                      → ~/.config/i3/
-    ├── i3status/                → ~/.config/i3status/
-    ├── kitty/                   → ~/.config/kitty/
-    └── waybar/                  → ~/.config/waybar/
+    ├── .config/alacritty/        → ~/.config/alacritty/
+    ├── .config/fcitx5/          → ~/.config/fcitx5/
+    ├── .config/foot/            → ~/.config/foot/
+    ├── .config/i3/              → ~/.config/i3/
+    ├── .config/i3status/        → ~/.config/i3status/
+    ├── .config/kitty/           → ~/.config/kitty/
+    ├── .config/waybar/          → ~/.config/waybar/
+    ├── xprofile/.xprofile        → ~/.xprofile
+    └── xresources/.Xresources   → ~/.Xresources
 ```
 
 ## 部署方法
@@ -48,7 +48,7 @@ stow termux
 stow -D common termux
 ```
 
-## 从旧仓库迁移（~/.cfg → ~/dotfiles）
+### 从旧仓库迁移（~/.cfg bare repo → ~/dotfiles stow 管理）
 
 ```bash
 # 1. 备份旧仓库和原配置文件
@@ -59,17 +59,16 @@ cp ~/.zprofile ~/.zprofile.bak
 # 2. 删除旧 bare repo
 rm -rf ~/.cfg
 
-# 3. 在新仓库中创建指向旧配置文件的 symlink（如果已有自定义修改）
-# 例如：
-#   mv ~/.zshrc ~/dotfiles/common/.zshrc
-#   然后重新 stow：
-#   cd ~/dotfiles && stow common
+# 3. 重新克隆仓库
+git clone git@github.com:catyugu/dotfiles.git ~/dotfiles
+cd ~/dotfiles
 
-# 4. 清理旧的 symlink（如果有）
-find ~ -maxdepth 1 -type l -name '.gitconfig' -o -name '.zshrc' -o -name '.zprofile' | xargs rm -v
+# 4. 清理旧的符号链接（如果有）
+find ~ -maxdepth 1 -type l | xargs rm -v 2>/dev/null || true
+find ~/.config -maxdepth 1 -type l | xargs rm -v 2>/dev/null || true
 
 # 5. 重新 stow
-cd ~/dotfiles && stow common termux
+stow common termux
 ```
 
 ### .profile.example 和 .rc.example 使用说明
