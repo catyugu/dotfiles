@@ -22,8 +22,8 @@ dotfiles/                        ← Stow 从这里运行
     ├── .config/i3status/        → ~/.config/i3status/
     ├── .config/kitty/           → ~/.config/kitty/
     ├── .config/waybar/          → ~/.config/waybar/
-    ├── xprofile/.xprofile        → ~/.xprofile
-    └── xresources/.Xresources   → ~/.Xresources
+    ├── .xprofile                → ~/.xprofile
+    └── .Xresources             → ~/.Xresources
 ```
 
 ## 部署方法
@@ -46,29 +46,6 @@ stow termux
 
 ```bash
 stow -D common termux
-```
-
-### 从旧仓库迁移（~/.cfg bare repo → ~/dotfiles stow 管理）
-
-```bash
-# 1. 备份旧仓库和原配置文件
-cp -r ~/.cfg ~/.cfg.bak
-cp ~/.zshrc ~/.zshrc.bak
-cp ~/.zprofile ~/.zprofile.bak
-
-# 2. 删除旧 bare repo
-rm -rf ~/.cfg
-
-# 3. 重新克隆仓库
-git clone git@github.com:catyugu/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-
-# 4. 清理旧的符号链接（如果有）
-find ~ -maxdepth 1 -type l | xargs rm -v 2>/dev/null || true
-find ~/.config -maxdepth 1 -type l | xargs rm -v 2>/dev/null || true
-
-# 5. 重新 stow
-stow common termux
 ```
 
 ### .profile.example 和 .rc.example 使用说明
