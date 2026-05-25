@@ -1,27 +1,25 @@
-# Stow Configurations
+# Dotfiles
 
 使用 GNU Stow 管理的 dotfiles 仓库，采用**叠加包**模式。
 
 ## 目录结构
 
 ```
-stow_configurations/
-├── common/           ← 所有平台共享 (main 分支)
-│   ├── git/          # .gitconfig
-│   └── nvim/         # Neovim 配置 (.config/nvim/)
+dotfiles/                        ← Stow 从这里运行
+├── common/                      ← 所有平台共享
+│   ├── .gitconfig               → ~/.gitconfig
+│   └── nvim/.config/nvim/       → ~/.config/nvim/
 │
-├── termux/           ← Termux/i3 桌面独有 (termux-arch 分支)
-│   ├── xresources/   # .Xresources
-│   ├── xprofile/     # .xprofile
-│   ├── alacritty/    # 终端配置
-│   ├── fcitx5/       # 输入法配置
-│   ├── foot/         # 终端配置
-│   ├── i3/           # i3 窗口管理器
-│   ├── i3status/    # i3status 状态栏
-│   ├── kitty/        # Kitty 终端配置
-│   └── waybar/       # Waybar 状态栏
-│
-└── wsl/              ← WSL 独有 (wsl-arch 分支, 当前为空)
+└── termux/                      ← Termux/i3 桌面环境
+    ├── xresources/.Xresources   → ~/.Xresources
+    ├── xprofile/.xprofile       → ~/.xprofile
+    ├── alacritty/               → ~/.config/alacritty/
+    ├── fcitx5/                  → ~/.config/fcitx5/
+    ├── foot/                    → ~/.config/foot/
+    ├── i3/                      → ~/.config/i3/
+    ├── i3status/                → ~/.config/i3status/
+    ├── kitty/                   → ~/.config/kitty/
+    └── waybar/                  → ~/.config/waybar/
 ```
 
 ## 部署方法
@@ -29,47 +27,38 @@ stow_configurations/
 ### 首次设置
 
 ```bash
-# 1. Clone 仓库
-git clone git@github.com:catyugu/stow_configurations.git ~/dotfiles
+# Clone 仓库（建议放在 ~/dotfiles）
+git clone git@github.com:catyugu/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 
-# 2. 切换到对应分支
-# WSL:
-git checkout wsl-arch
-# Termux:
-git checkout termux-arch
+# 通用配置（所有机器）
+stow common
 
-# 3. Stow 链接
-stow common                       # 所有平台：git + nvim
-stow termux                       # Termux 平台：桌面环境配置
+# Termux/i3 桌面配置
+stow termux
 ```
 
 ### 撤销链接
 
 ```bash
-stow -D <package>
 stow -D common termux
 ```
 
-### 从其他分支获取新包
+## Stow 叠加包原则
 
-```bash
-git fetch origin
-git checkout termux-arch -- termux/alacritty  # 从 termux-arch 获取新包到当前分支
-stow alacritty
-```
-
-## 分支说明
-
-| 分支 | 内容 | 合并方式 |
-|------|------|----------|
-| `main` | 平台无关的共享配置 | 永远只添加 shared 配置 |
-| `termux-arch` | Termux/i3 桌面环境独有配置 | 在 `main` 基础上追加 termux 独有包 |
-| `wsl-arch` | WSL 独有配置 | 在 `main` 基础上追加 wsl 独有包（当前为空）|
+- 所有包都在同一个 `main` 分支
+- `common/`：**跨平台共享**，任何机器都部署
+- `termux/`：**Termux/i3 桌面专用**，只在目标机器部署
+- 部署时按需选择性 `stow`：不想用的包就不 stow 它
 
 ## 规则
 
-1. **`main` 永远只包含跨平台共享的配置**
-2. **平台分支只在 `main` 基础上追加新的 package**，不修改已在 `main` 中的文件
-3. **敏感信息**（API keys, tokens）不进入仓库，使用 `.env.example` 模板
-4. 每个 package 目录结构必须与 `$HOME` 路径一致，以便 Stow 正确链接
+1. **不在仓库中的配置**：`.bashrc`、`.bash_profile`、`.zshrc` 等 shell 配置由各平台自己维护，不进仓库
+2. **目录结构必须与 $HOME 路径一致**：Stow 从 `~/dotfiles/` 运行，package 内的路径必须能直接链接到 `$HOME` 下对应位置
+3. **新增 package**：直接创建新目录（如 `wsl/`），放入对应路径的结构即可
+4. **敏感信息**：不提交 API keys、tokens 等，使用 `.env.example` 模板
+
+## 相关链接
+
+- [GNU Stow Manual](https://www.gnu.org/software/stow/manual/stow.html)
+- [Using GNU Stow to manage your dotfiles](http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html)
