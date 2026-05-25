@@ -57,8 +57,6 @@ cp common/.profile.example ~/.profile
 cp common/.rc.example ~/.rc
 ```
 
-编辑 `.profile` 和 `.rc`，其中的环境变量和 alias 会由 `.zshrc` 自动加载。
-
 ## Stow 叠加包原则
 
 - 所有包都在同一个 `main` 分支
@@ -71,7 +69,7 @@ cp common/.rc.example ~/.rc
 
 1. **目录结构必须与 $HOME 路径一致**：Stow 从 `~/dotfiles/` 运行，package 内的路径必须能直接链接到 `$HOME` 下对应位置
 2. **新增 package**：直接创建新目录（如 `wsl/`），放入对应路径的结构即可
-3. **敏感信息**：不提交 API keys、tokens 等，使用 `.env.example` 模板
+3. **敏感信息**：不提交 API keys、tokens 等，最好使用 `.profile.example`, `.rc.example` 模板自行在本地创建。
 4. **平台专有配置**：放入对应平台的 package（如 `wsl/`），只在需要的机器上 stow
 
 ## 相关链接
