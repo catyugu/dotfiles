@@ -13,7 +13,6 @@ set termencoding=utf-8
 " ==========================================
 set number                    " 显示绝对行号
 set relativenumber            " 显示相对行号（方便跳转指定行）
-set cursorline                " 突出显示当前行
 set showcmd                   " 在底部显示未完成的命令
 set ruler                     " 显示光标当前位置
 set wrap                      " 自动折行
