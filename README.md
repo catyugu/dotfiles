@@ -11,7 +11,9 @@ dotfiles/                        ← Stow 从这里运行
 │   ├── .zshrc                   → ~/.zshrc
 │   ├── .zprofile                → ~/.zprofile
 │   ├── .profile.example         → ~/.profile.example
-│   ├── .rc.example             → ~/.rc.example
+│   └── .rc.example             → ~/.rc.example
+│
+├── nvim/                        ← Neovim (LazyVim) 配置
 │   └── .config/nvim/            → ~/.config/nvim/
 │
 └── termux/                      ← Termux/i3 桌面环境
@@ -38,14 +40,20 @@ cd ~/dotfiles
 # 通用配置（所有机器）
 stow common
 
+# Neovim (LazyVim) 配置
+stow nvim
+
 # Termux/i3 桌面配置
 stow termux
+
+# 也可以一次性部署多个包
+stow common nvim termux
 ```
 
 ### 撤销链接
 
 ```bash
-stow -D common termux
+stow -D common nvim termux
 ```
 
 ### .profile.example 和 .rc.example 使用说明
@@ -61,6 +69,7 @@ cp common/.rc.example ~/.rc
 
 - 所有包都在同一个 `main` 分支
 - `common/`：**跨平台共享**，任何机器都部署
+- `nvim/`：**Neovim (LazyVim) 配置**，独立成包便于单独维护和分发
 - `termux/`：**Termux/i3 桌面专用**，只在目标机器部署
 - 部署时按需选择性 `stow`：不想用的包就不 stow 它
 - `.profile.example`、`.rc.example` 等 `.example` 模板文件仅供参考，不自动链接

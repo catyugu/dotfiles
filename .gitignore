@@ -1,18 +1,16 @@
-# OS specific
-.DS_Store
-Thumbs.db
+# 1. 忽略根目录下所有文件
+/*
 
-# Editor
+# 2. 排除 .gitignore 和自述文件，确保它们能被提交
+!.gitignore
+!README.md
+
+# 3. 反向包含（白名单）你需要用 Stow 管理的软件目录
+!common/
+!nvim/
+!termux/
+
+# 4. 忽略 Stow 可能会生成的本地状态或临时文件
+*.retry
 *.swp
-*.swo
-*~
-.fuse_hidden*
-.Directory
-
-# Stow helper files
-.stow-local-ignore
-install.sh
-
-# Everything else except directories (needed for Stow)
-*
-!*/
+.DS_Store
