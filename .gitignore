@@ -1,9 +1,10 @@
-# 1. 忽略根目录下所有文件
+# 根目录默认忽略；配置包内默认跟踪。
 /*
 
-# 2. 排除 .gitignore 和自述文件，确保它们能被提交
+# 仓库入口
 !.gitignore
 !README.md
+!install.sh
 
 # 3. 反向包含（白名单）你需要用 Stow 管理的软件目录
 !common/
@@ -13,4 +14,6 @@
 # 4. 忽略 Stow 可能会生成的本地状态或临时文件
 *.retry
 *.swp
+*.swo
+*.orig
 .DS_Store

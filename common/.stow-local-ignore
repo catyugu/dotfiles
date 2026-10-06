@@ -1,0 +1,7 @@
+# Perl regular expressions matched against each path basename.
+\.git(?:ignore|modules|attributes)?
+\.stow-local-ignore
+README(?:\.md)?
+LICENSE
+.+\.(?:swp|swo|orig|retry)
+\.DS_Store

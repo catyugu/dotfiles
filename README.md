@@ -1,87 +1,138 @@
 # Dotfiles
 
-使用 GNU Stow 管理的 dotfiles 仓库，采用**叠加包**模式。
+用于在新机器上快速接入常用配置。采用 Git 白名单和 GNU Stow 分包管理，按机器需要选择配置。
 
-## 目录结构
+## 新机操作
 
-```
-dotfiles/                        ← Stow 从这里运行
-├── common/                      ← 所有平台共享
-│   ├── .gitconfig               → ~/.gitconfig
-│   ├── .zshrc                   → ~/.zshrc
-│   ├── .zprofile                → ~/.zprofile
-│   ├── .profile.example         → ~/.profile.example
-│   └── .rc.example             → ~/.rc.example
-│
-├── nvim/                        ← Neovim (LazyVim) 配置
-│   └── .config/nvim/            → ~/.config/nvim/
-│
-└── desktop/                     ← Linux 桌面（i3 / waybar / 终端 / 输入法）
-    ├── .config/alacritty/        → ~/.config/alacritty/
-    ├── .config/fcitx5/          → ~/.config/fcitx5/
-    ├── .config/foot/            → ~/.config/foot/
-    ├── .config/i3/              → ~/.config/i3/
-    ├── .config/i3status/        → ~/.config/i3status/
-    ├── .config/kitty/           → ~/.config/kitty/
-    ├── .config/waybar/          → ~/.config/waybar/
-    ├── .xprofile                → ~/.xprofile
-    └── .Xresources             → ~/.Xresources
-```
+### 1. 安装必要软件
 
-## 部署方法
-
-### 首次设置
+部署需要 Bash、GNU Stow 和常规 Unix 工具。Linux 可按发行版安装：
 
 ```bash
-# Clone 仓库（建议放在 ~/dotfiles）
-git clone git@github.com:catyugu/dotfiles.git ~/dotfiles
+# Debian / Ubuntu
+sudo apt install git stow bash zsh
+
+# Arch Linux
+sudo pacman -S git stow bash zsh
+```
+
+脚本检查部署依赖，不自动运行系统安装命令或切换默认 Shell。
+
+| 配置包 | 应用依赖 |
+| --- | --- |
+| common | Git、Bash 或 Zsh；Vim 按需安装 |
+| nvim | Neovim、Git；建议安装 ripgrep、fd、编译工具；当前 clangd 配置使用系统 clangd |
+| desktop | 按需安装 i3、i3status、Waybar、Kitty、Foot、Alacritty、Fcitx5、rofi、Firefox、Thunar、字体及 X11 工具 |
+
+Zsh 配置可接入已安装的 Oh My Zsh；缺失时基础环境与别名仍可使用。主题使用 `sorin`，两个自定义插件仅在已安装时加载：
+
+```bash
+git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
+git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+```
+
+仅首次安装时运行；已有对应目录则跳过。安装 Conda、Rust 等工具时允许其正常修改本机启动文件，同一工具只初始化一次。
+
+### 2. 克隆并部署
+
+```bash
+git clone https://github.com/catyugu/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 
-# 通用配置（所有机器）
-stow common
-
-# Neovim (LazyVim) 配置
-stow nvim
-
-# Linux 桌面配置（i3 / waybar / 终端 / 输入法）
-stow desktop
-
-# 也可以一次性部署多个包
-stow common nvim desktop
+./install.sh --dry-run             # 先查看计划
+./install.sh                       # 默认部署 common，并接入 Bash / Zsh
+./install.sh common nvim           # 开发环境
+./install.sh common nvim desktop   # 按需加入桌面配置
 ```
 
-### 撤销链接
+脚本显式指定部署目标为 `$HOME`，仓库可以放在其他位置。只允许 `common`、`nvim`、`desktop`，未知包或失败会返回非零退出状态。重复部署不会重复添加加载块。
+
+部署使用 `--no-folding`，目录保持普通目录、配置文件使用链接，便于应用创建自己的本地文件。仅部署 `nvim` 或 `desktop` 不会修改 Shell 入口。
+
+### 3. 处理已有配置
+
+默认遇到冲突就中止，不修改目标。先查看本机配置与仓库差异，保留需要的修改，再执行：
 
 ```bash
-stow -D common nvim desktop
+./install.sh --dry-run --backup common nvim
+./install.sh --backup common nvim
 ```
 
-### .profile.example 和 .rc.example 使用说明
+`--backup` 将冲突文件或目录移到 `~/.local/state/dotfiles/backups/<时间戳>.<随机后缀>/`，然后部署仓库版本；它不会合并配置。目录符号链接会备份链接本身，避免修改外部目录。
 
-这两个模板文件**不被 stow 链接**，需要手动复制后按需修改：
+Shell 入口修改前也会备份。入口符号链接默认拒绝修改，使用 `--backup` 后才读取其内容并转换为普通文件。
+
+备份路径由脚本输出。如果部署中途失败，已移走的文件仍在备份中，修复错误后可重试或按下文恢复。`--dry-run --backup` 在存在冲突时报告待备份路径，不执行移走文件后的完整 Stow 校验。
+
+### 4. 填写本机设置
 
 ```bash
-cp common/.profile.example ~/.profile
-cp common/.rc.example ~/.rc
+# 仅首次创建，已有文件时保留原内容
+mkdir -p ~/.config/dotfiles
+if [ ! -e ~/.config/dotfiles/local.sh ]; then
+    (umask 077; touch ~/.config/dotfiles/local.sh)
+fi
 ```
 
-## Stow 叠加包原则
+在 `local.sh` 中填写代理、额外路径等，使用兼容 POSIX sh 的语法。本机交互覆盖可写入 `local.bash`、`local.zsh`。
 
-- 所有包都在同一个 `main` 分支
-- `common/`：**跨平台共享**，任何机器都部署
-- `nvim/`：**Neovim (LazyVim) 配置**，独立成包便于单独维护和分发
-- `desktop/`：**Linux 桌面专用（i3 / waybar / 终端 / 输入法）**，只在目标机器部署
-- 部署时按需选择性 `stow`：不想用的包就不 stow 它
-- `.profile.example`、`.rc.example` 等 `.example` 模板文件仅供参考，不自动链接
+凭据放在仓库外的独立文件中，权限设置为 `600`，需要时显式加载。不要把本机文件复制回仓库。Git 身份在 `common/.gitconfig` 中，首次使用前检查是否符合目标机器用途。
 
-## 规则
+打开新 Shell 使用配置。公共环境配置每个 Shell 只加载一次，修改后也应打开新 Shell。
 
-1. **目录结构必须与 $HOME 路径一致**：Stow 从 `~/dotfiles/` 运行，package 内的路径必须能直接链接到 `$HOME` 下对应位置
-2. **新增 package**：直接创建新目录（如 `wsl/`），放入对应路径的结构即可
-3. **敏感信息**：不提交 API keys、tokens 等，最好使用 `.profile.example`, `.rc.example` 模板自行在本地创建。
-4. **平台专有配置**：放入对应平台的 package（如 `wsl/`），只在需要的机器上 stow
+## 配置边界与目录
 
-## 相关链接
+```text
+dotfiles/
+├── common/
+│   ├── .gitconfig
+│   ├── .vimrc
+│   ├── .stow-local-ignore
+│   └── .config/dotfiles/
+│       ├── profile.sh       # 公共环境变量与 local.sh 接入
+│       ├── rc.sh            # 公共别名
+│       ├── bashrc.bash      # Bash 交互配置
+│       └── zshrc.zsh        # Zsh / Oh My Zsh / 插件配置
+├── nvim/                   # Neovim / LazyVim 配置
+├── desktop/                # 桌面应用配置、.Xresources
+├── install.sh
+└── README.md
+```
 
-- [GNU Stow Manual](https://www.gnu.org/software/stow/manual/stow.html)
-- [Using GNU Stow to manage your dotfiles](http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html)
+`.profile`、`.bashrc`、`.zshrc`、`.bash_profile`（或已有 `.bash_login`）、`.zprofile` 是本机普通文件。安装器可修改它们，脚本只维护下面标记之间的加载语句，保留其他内容：
+
+```sh
+# >>> dotfiles >>>
+# 公共配置加载语句
+# <<< dotfiles <<<
+```
+
+加载块放在入口末尾。本机环境初始化通常先执行，公共配置随后执行，`local.bash` / `local.zsh` 最后覆盖。安装器若在末尾追加代码，需要检查顺序；重新运行安装脚本会把加载块调整到末尾。存在重复或未闭合标记时脚本中止。
+
+新建登录入口时会接入 `.profile`，新建 Bash 登录入口还会接入 `.bashrc`；已有入口保留原来的加载逻辑，并补入公共配置入口。FNM 初始化分别使用 Bash / Zsh 语法，已存在 `FNM_MULTISHELL_PATH` 时跳过。
+
+桌面会话初始化由本机的桌面环境和会话管理器负责。已有本机 `.xprofile` 不受部署脚本影响。
+
+## 白名单规则
+
+- Git 根目录默认忽略，显式放行仓库入口、`common/`、`nvim/` 和 `desktop/`；放行的目录内默认跟踪正常文件。
+- 新增包必须同时更新 `.gitignore` 和 `install.sh` 的 `ALLOWED_PACKAGES`，并在 README 记录用途及依赖。
+- 包内路径必须对应 `$HOME` 下的实际路径；不同包不能拥有同一目标文件。
+- Git 白名单控制提交，包根目录的 `.stow-local-ignore` 控制部署，二者分开维护。Stow 规则使用 Perl 正则表达式。
+- 当前忽略说明文件、Git 元数据和临时文件。修改包内忽略规则时，同步更新脚本的 `ignored` 函数，确保备份预检与部署一致。
+- 本机补充文件位于仓库外，脚本不把它们加入包；仓库内不得填写真实凭据。
+
+## 更新、撤销与恢复
+
+修改实际配置链接后，修改会直接进入仓库。提交前查看 `git status` 和差异；更新仓库后重新运行对应的安装命令以接入新增文件。
+
+撤销配置链接（从仓库目录运行）：
+
+```bash
+stow --no-folding -D -t "$HOME" common nvim desktop
+```
+
+入口中的加载块在配置缺失时会跳过，撤销后可保留，也可手动删除整段标记块。恢复旧配置时先撤销对应包的链接，再从脚本输出的备份目录逐项恢复文件；启动入口恢复前删除新入口，再复制备份，避免沿现有链接写入。
+
+参考：[GNU Stow](https://www.gnu.org/software/stow/manual/stow.html)、[Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh)。

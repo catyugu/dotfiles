@@ -1,6 +1,0 @@
-# Stow ignore patterns
-.git*
-*.orig
-*.dist
-README.md
-install.sh
