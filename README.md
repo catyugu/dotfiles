@@ -77,7 +77,7 @@ fi
 
 在 `local.sh` 中填写代理、额外路径等，使用兼容 POSIX sh 的语法。本机交互覆盖可写入 `local.bash`、`local.zsh`。Miniconda、FNM、Bun、Rust 等工具的路径与初始化属于本机配置，不进入仓库；安装器生成的初始化块保留在本机入口，手写初始化放入 `local.*`，同一工具只保留一个初始化位置。
 
-公共环境、条件判断与加载语句优先使用 POSIX sh；Zsh 插件数组和工具生成的 Shell hook 使用对应 Shell 的语法。部署脚本 `install.sh` 使用 Bash。
+共享的 `.sh` 文件（如 `profile.sh`、`rc.sh`、`local.sh`）使用 POSIX sh。专用于 Bash / Zsh 的文件（如 `bashrc.bash`、`zshrc.zsh`、`local.bash`、`local.zsh`）可使用各自更简洁的原生语法；工具生成的 hook 也按对应 Shell 加载。部署脚本 `install.sh` 使用 Bash。
 
 凭据放在仓库外的独立文件中，权限设置为 `600`，需要时显式加载。不要把本机文件复制回仓库。Git 身份在 `common/.gitconfig` 中，首次使用前检查是否符合目标机器用途。
 
